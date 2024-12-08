@@ -1,3 +1,6 @@
 [submodule "graphrag"]
 	path = graphrag
 	url = https://github.com/microsoft/graphrag.git
+[submodule "competitive-analysis-rag-ui"]
+	path = competitive-analysis-rag-ui
+	url = https://github.com/Caligula1022/competitive-analysis-rag-ui.git

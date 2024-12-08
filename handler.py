@@ -1,3 +1,4 @@
+import os
 from typing import Dict
 import uuid
 from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile
@@ -9,6 +10,7 @@ from query import run_graphrag_query
 from index import run_indexing, indexing_logs, run_indexing_with_status
 from init import run_init
 from upload import upload_file
+from utils import get_kb_root
 
 # from settings import load_settings
 # from utils import fetch_available_models
@@ -41,7 +43,7 @@ async def chat_completions(request: ChatCompletionRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/health")
+@router.get("/v1/health")
 async def health_check():
     return {"status": "ok"}
 
@@ -79,7 +81,7 @@ async def init(request: InitRequest):
     return await run_init(request)
 
 
-@router.post("/upload/")
+@router.post("/v1/upload/")
 async def handle_upload(file: UploadFile, root_path: str) -> Dict[str, str]:
     """
     处理文件上传的API接口
@@ -93,3 +95,19 @@ async def handle_upload(file: UploadFile, root_path: str) -> Dict[str, str]:
         raise HTTPException(
             status_code=400, detail="文件上传失败，请确保上传的是txt格式文件"
         )
+
+
+@router.get("/v1/list_knowledge_bases")
+async def list_knowledge_bases():
+    # check all files in kb_root and return a list of available knowledge bases
+    kb_root = get_kb_root()
+    files = os.listdir(kb_root)
+    return [f for f in files if os.path.isdir(os.path.join(kb_root, f))]
+
+
+@router.get("/v1/show_uploaded_files/{kb_name}")
+async def show_uploaded_files(kb_name: str):
+    kb_root = get_kb_root()
+    kb_path = os.path.join(kb_root, kb_name, "input")
+    files = os.listdir(kb_path)
+    return [f for f in files if os.path.isfile(os.path.join(kb_path, f))]
