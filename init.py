@@ -3,6 +3,9 @@ import os
 from fastapi import Depends, HTTPException
 from utils import get_kb_root
 from models import InitRequest
+from logger import get_logger
+
+logger = get_logger(__name__)
 
 
 async def run_init(request: InitRequest, kb_root: str = get_kb_root()):
@@ -12,6 +15,7 @@ async def run_init(request: InitRequest, kb_root: str = get_kb_root()):
         os.makedirs(inputpath, mode=0o777, exist_ok=False)
         cmd = ["graphrag", "init"]
         cmd.extend(["--root", f"{target_path}"])
+        logger.info(f"running command: {' '.join(cmd)}")
         process = await asyncio.create_subprocess_exec(*cmd)
         await process.wait()
         if process.returncode != 0:

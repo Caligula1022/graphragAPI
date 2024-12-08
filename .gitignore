@@ -1,1 +1,3 @@
 .env
+kbs/
+__pycache__/
